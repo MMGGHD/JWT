@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.kakao._core.errors.exception.Exception401;
 import com.example.kakao._core.utils.ApiUtils;
+import com.example.kakao.order.OrderResponse;
+import com.example.kakao.product.Product;
+import com.example.kakao.product.ProductResponse;
 import com.example.kakao.user.User;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +29,10 @@ public class CartRestController {
     // (기능3) 장바구니 조회
     @GetMapping("/carts")
     public ResponseEntity<?> findAllByUser() {
-        return null;
+
+        CartResponse.FindAllByUserDTO resposnseDTO = cartService.findAllByUser();
+
+        return ResponseEntity.ok(resposnseDTO);
     }
 
     // 장바구니 담기
@@ -50,4 +56,17 @@ public class CartRestController {
         cartService.update(requestDTOs, sessionUser);
         return ResponseEntity.ok(ApiUtils.success(null));
     }
+
+    @GetMapping("/proTest")
+    public ResponseEntity<?> proTest() {
+        ProductResponse.FindAllByUserDTO responseDTO = cartService.findAllByUserV2();
+        System.out.println("테스트 responseDTO: " + responseDTO);
+        // for (Product product : responseDTO) {
+
+        // System.out.println("테스트 getOptions" + product.getOptions());
+        // System.out.println("테스트 " + product.getProductName());}
+        System.out.println("테스트 : ResponseEntity " + ResponseEntity.ok(ApiUtils.success(responseDTO)));
+        return ResponseEntity.ok(responseDTO);
+    }
+
 }

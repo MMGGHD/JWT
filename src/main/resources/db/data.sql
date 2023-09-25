@@ -68,6 +68,10 @@ INSERT INTO option_tb (`id`,`product_id`,`option_name`,`price`) VALUES ('48', '1
 INSERT INTO cart_tb (`id`, `user_id`,`option_id`,`quantity`, `price`) VALUES (4, 1, 3, 1, 9900);
 INSERT INTO cart_tb (`id`,`user_id`,`option_id`,`quantity`, `price`) VALUES (5, 1, 4, 1, 16900);
 INSERT INTO cart_tb (`id`,`user_id`,`option_id`,`quantity`, `price`) VALUES (6, 1, 17, 2, 100000);
+INSERT INTO cart_tb (`id`,`user_id`,`option_id`,`quantity`, `price`) VALUES (7, 1, 18, 2, 100000);
+INSERT INTO cart_tb (`id`,`user_id`,`option_id`,`quantity`, `price`) VALUES (8, 1, 31, 2, 100000);
+INSERT INTO cart_tb (`id`,`user_id`,`option_id`,`quantity`, `price`) VALUES (9, 1, 32, 2, 100000);
+INSERT INTO cart_tb (`id`,`user_id`,`option_id`,`quantity`, `price`) VALUES (10, 1, 33, 2, 100000);
 
 INSERT INTO order_tb (`id`,`user_id`) VALUES (1, 1);
 

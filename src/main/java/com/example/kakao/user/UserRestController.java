@@ -2,7 +2,6 @@ package com.example.kakao.user;
 
 import javax.servlet.http.HttpSession;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,14 +29,14 @@ public class UserRestController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserRequest.LoginDTO requestDTO) {
-        User sessionUser = userService.login(requestDTO);
-        session.setAttribute("sessionUser", sessionUser);
-        return ResponseEntity.ok().body(ApiUtils.success(null));
+        String jwt = userService.login(requestDTO);
+        // Authorization 넣고 Bearer 를 넣어줘야한다.
+        return ResponseEntity.ok().header("Authorization", "Bearer " + jwt).body(ApiUtils.success(null));
     }
 
     // 로그아웃
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(){
+    public ResponseEntity<?> logout() {
         session.invalidate();
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }

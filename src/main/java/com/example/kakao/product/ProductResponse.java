@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import com.example.kakao.cart.Cart;
 import com.example.kakao.product.option.Option;
 
 import lombok.Getter;
@@ -139,4 +140,62 @@ public class ProductResponse {
             }
         }
     }
+
+    @Getter
+    @Setter
+    // DTO이름을 지을때 사용할 화면이름을 참조하면 좋다.
+    public static class FindAllByUserDTO {
+
+        private Integer totalPrice;
+        private List<CartDTO> products;
+
+        public FindAllByUserDTO(List<Product> products, List<Cart> carts) {
+
+            this.products = products.stream()
+                    .distinct()
+                    .map(o -> new CartDTO(o, carts))
+                    .collect(Collectors.toList());
+            this.totalPrice = carts.stream().mapToInt(cart -> cart.getPrice()).sum();
+        }
+
+        @Getter
+        @Setter
+
+        // 내부클래스는 public을 뺀다.
+        class CartDTO {
+
+            private String productName;
+            private List<Category> categorys;
+
+            public CartDTO(Product product, List<Cart> carts) {
+                this.categorys = carts.stream()
+                        // .filter(carts.get(0).getOption().getProduct().getProductName().equals(product.getProductName()))
+                        .filter(t -> t.getOption().getProduct().getId() == product.getId())
+                        .map(o -> new Category(o.getOption(), o))
+                        .collect(Collectors.toList());
+                this.productName = product.getProductName();
+            }
+
+        }
+
+        @Getter
+        @Setter
+        class Category {
+
+            private String optionName;
+            private Integer quantity;
+            private Integer cartPrice;
+            private Integer optionPrice;
+
+            public Category(Option option, Cart cart) {
+                this.optionName = cart.getOption().getOptionName();
+                this.quantity = cart.getQuantity();
+                this.cartPrice = cart.getPrice();
+                this.optionPrice = cart.getOption().getPrice();
+            }
+
+        }
+
+    }
+
 }

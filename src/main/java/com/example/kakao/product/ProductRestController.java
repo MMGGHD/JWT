@@ -32,7 +32,7 @@ public class ProductRestController {
     // (기능2) 상품 상세보기
     @GetMapping("/products/{id}")
     public ResponseEntity<?> findById(@PathVariable int id) {
-        
+
         return null;
     }
 
@@ -63,4 +63,5 @@ public class ProductRestController {
         List<Option> responseDTO = productService.findByIdV4(id);
         return ResponseEntity.ok(responseDTO);
     }
+
 }
