@@ -12,17 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.http.MediaType;
-
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.kakao._core.errors.exception.Exception401;
-import com.example.kakao._core.utils.ApiUtils;
 import com.example.kakao._core.utils.JwtTokenUtils;
-import com.example.kakao._core.utils.ApiUtils.ApiResult;
 import com.example.kakao.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// Authorization << 인가 (토큰유무에 따라 허용할지 안할지) != 인증(신뢰해서 토큰을 만들어줌)
+// Authorization << 인가(토큰유무에 따라 허용할지 안할지) != 인증(신뢰해서 토큰을 만들어줌)
 // products, carts, orders로 시작하는 요청 주소는 인증검사가 필요함
 public class JwtAuthorizationFilter implements Filter {
 
@@ -42,10 +41,11 @@ public class JwtAuthorizationFilter implements Filter {
         // products, carts, orders로 시작하는 요청 주소는 인증검사가 필요함
         // 나머지 요청주소들은 필터를 거치지 않고 통과해야한다.
 
-        // header에서 "Authorization(토큰)"이있는지 확인. 있으면 검증하러ㄱ, 없으면 더 보내지않고 버림
+        // header에서 "Authorization(토큰)"이있는지 확인. 있으면 검증하러ㄱ, 없으면 더 보내지않고 예외
+        // JWT관련 Exception은 크게 3가지가 있다.
         String jwt = request.getHeader("Authorization");
         if (jwt == null || jwt.isEmpty()) {
-            onError(response);
+            onError(response, "토큰이 없습니다.");
 
             // 여기서 코드 종료(return)
             return;
@@ -57,6 +57,7 @@ public class JwtAuthorizationFilter implements Filter {
             int userId = decodedJWT.getClaim("id").asInt();
             String email = decodedJWT.getClaim("email").asString();
 
+            // 컨트롤러에서 꺼내쓰기 쉽게 하려고 User객체로 Build하여 Session에 보관한다.
             User sessionUser = User.builder().id(userId).email(email).build();
 
             HttpSession session = request.getSession();
@@ -66,14 +67,21 @@ public class JwtAuthorizationFilter implements Filter {
             // doFilter << 통과, 다음체인을 타라
             chain.doFilter(request, response);
 
-        } catch (Exception e) {
+            // JWT관련 Exception이 크게 3가지가 있다.
+            // SignatureVerificationException << 검증실패
+        } catch (SignatureVerificationException | JWTDecodeException e1) {
+            onError(response, "토큰 검증 실패");
+        }
 
+        // TokenExpiredException << 토큰이 만료됨
+        catch (TokenExpiredException e2) {
+            onError(response, "토큰 시간 만료");
         }
 
     }
 
     // Filter는 DS보다 앞단에 위치, ExceptionHandler를 호출할수없다. << 손코딩 해야함
-    private void onError(HttpServletResponse response) {
+    private void onError(HttpServletResponse response, String msg) {
 
         Exception401 e401 = new Exception401("인증되지 않았습니다");
 
